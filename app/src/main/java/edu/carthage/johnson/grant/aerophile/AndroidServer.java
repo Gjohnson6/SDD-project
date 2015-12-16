@@ -58,7 +58,6 @@ public class AndroidServer extends Activity {
         ip.setText(result1);
     }
 
-
     public void onClick(View arg0) {
         new ClientProxyThread(port_num, this).execute();
     }

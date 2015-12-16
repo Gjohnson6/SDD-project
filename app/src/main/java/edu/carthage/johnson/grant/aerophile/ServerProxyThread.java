@@ -18,14 +18,13 @@ import java.net.UnknownHostException;
    This class is used by the CLIENT to connect to the server and send information over the socket
  */
 public class ServerProxyThread extends AsyncTask<String, Void, String> {
-    EditText textOut;
-    TextView textIn;
-    TextView viewIp;
     private int port = 55555;
+
     public ServerProxyThread()
     {
 
     }
+
     @Override
     protected String doInBackground(String... strings)
     {

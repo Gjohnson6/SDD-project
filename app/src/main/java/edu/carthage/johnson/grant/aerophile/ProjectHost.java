@@ -1,8 +1,13 @@
 package edu.carthage.johnson.grant.aerophile;
 
+import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,15 +20,18 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 
 public class ProjectHost extends ActionBarActivity{
 
     private String baseFilePath;
     private String currentFilePath;
+    private String projectID;
     private File currentFile;
     private ListView listView;
     private FileBrowser fileBrowser;
+    private Project currProj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +42,13 @@ public class ProjectHost extends ActionBarActivity{
 
         baseFilePath = Environment.getExternalStorageDirectory().getPath();
 
-        if(getIntent().hasExtra("BasePath"))
+        if(getIntent().hasExtra("Project"))
         {
-            baseFilePath = getIntent().getStringExtra("BasePath");
+            currProj = getIntent().getParcelableExtra("Project");
+            baseFilePath = currProj.getFilepath();
+            setTitle(currProj.getProjectName());
+            projectID = currProj.getId();
         }
-
-        if(getIntent().hasExtra("ProjectTitle"))
-        {
-            setTitle(getIntent().getStringExtra("ProjectTitle"));
-        }
-
         currentFilePath = baseFilePath;
         currentFile = new File(currentFilePath);
 
@@ -141,11 +146,43 @@ public class ProjectHost extends ActionBarActivity{
         }
 
         if(id == R.id.qr_code) {
-            //THIS IS WHERE YOU INSERT YOUR IP
-            String qrInputText = "FUCK YOU HASBRO";
+            //IP address
+            //Port
+            //Project ID
+            String ip = "";
+            try {
+                WifiManager wifiManager = (WifiManager) this.getSystemService(WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+
+                int ipAddress = wifiInfo.getIpAddress();
+                String ip2 = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+                ip = String.format(Locale.getDefault(), "%d.%d.%d.%d",
+                        (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+                        (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
+            } catch (Exception ex) {
+                //Log.e(TAG, ex.getMessage());
+                ex.printStackTrace();
+            }
+
+            int port = 55555;
+
+            QRInfo qrInfo = new QRInfo(projectID, ip, port);
+
+            String qrInputText = "";
+            try {
+                qrInputText = qrInfo.getIp() + "¥" + qrInfo.getPort() + "¥" + qrInfo.getProjectID();
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
 
             Intent printOut = new Intent(this, QRGenerated.class);
-            printOut.putExtra(qrInputText, "toGen");
+            printOut.putExtra("toGen", qrInputText);
+
+            if(currProj != null)
+            {
+                printOut.putExtra("Project", (Parcelable) currProj);
+            }
             startActivity(printOut);
         }
         return super.onOptionsItemSelected(item);

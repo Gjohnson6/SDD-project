@@ -27,5 +27,7 @@
         android:layout_height="wrap_content"
         android:text="Partner A Project"
         android:id="@+id/PartnerButton"
-        android:enabled="true" />
+        android:enabled="true"
+        android:clickable="true"
+        android:onClick="PartnerProject" />
 </LinearLayout>

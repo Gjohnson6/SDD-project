@@ -44,4 +44,10 @@ public class MainActivity extends ActionBarActivity {
         Intent moveToHost = new Intent(this, HostActivity.class);
         startActivity(moveToHost);
     }
+
+    public void PartnerProject(View view)
+    {
+        Intent moveToPartner = new Intent(this, PartnerName.class);
+        startActivity(moveToPartner);
+    }
 }

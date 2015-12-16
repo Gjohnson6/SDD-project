@@ -30,7 +30,7 @@ public class HostActivity extends ActionBarActivity {
         }
         else
         {
-            savedProjects = savedProjects.readProjects(this);
+            savedProjects = savedProjects.readProjects(this, "HostedProjects.ser");
         }
         projects = savedProjects.getProjects();
 

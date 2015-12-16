@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.UUID;
+
 
 public class NewProjectActivity extends ActionBarActivity {
     TextView filePathTV;
@@ -28,6 +30,11 @@ public class NewProjectActivity extends ActionBarActivity {
             filePathTV.setText(getIntent().getStringExtra("BasePath"));
         }
 
+        if(getIntent().hasExtra("ProjectName"));
+        {
+            projectNameTV.setText(getIntent().getStringExtra("ProjectName"));
+        }
+
         if(getIntent().hasExtra("SavedProjects"))
         {
             savedProjects = (SavedProjects) getIntent().getParcelableExtra("SavedProjects");
@@ -36,6 +43,8 @@ public class NewProjectActivity extends ActionBarActivity {
         {
             savedProjects = new SavedProjects();
         }
+        String b = "d";
+
     }
 
 
@@ -65,6 +74,7 @@ public class NewProjectActivity extends ActionBarActivity {
     {
         //opens file browser
         Intent moveToBrowser = new Intent(this, NewProjectBrowser.class);
+        String projectName = projectNameTV.getText().toString();
         moveToBrowser.putExtra("ProjectName", projectNameTV.getText().toString());
         moveToBrowser.putExtra("SavedProjects", (Parcelable) savedProjects);
         startActivity(moveToBrowser);
@@ -93,8 +103,11 @@ public class NewProjectActivity extends ActionBarActivity {
         else
         {
             Project newProject = new Project(projectName, filepath);
+
+            //Generate ID
+            newProject.setId(UUID.randomUUID().toString());
             savedProjects.addProject(newProject);
-            savedProjects.saveProjects(this);
+            savedProjects.saveProjects(this, "HostedProjects.ser");
 
             Intent moveToHost = new Intent(this, HostActivity.class);
             moveToHost.putExtra("SavedProjects", (Parcelable) savedProjects);

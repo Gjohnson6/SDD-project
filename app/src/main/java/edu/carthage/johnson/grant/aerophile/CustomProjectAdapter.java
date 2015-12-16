@@ -2,6 +2,7 @@ package edu.carthage.johnson.grant.aerophile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,11 +39,7 @@ public class CustomProjectAdapter extends ArrayAdapter<Project> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent (getContext(),ProjectHost.class);
-                intent.putExtra("ProjectTitle", project.getProjectName());
-                intent.putExtra("BasePath", project.getFilepath());
-                //intent.putExtra("TopicSubject",topic.getTopicTitle());
-                //intent.putExtra("BoardId", topic.getOnBoard());
-                //intent.putExtra("UserId", UserId);
+                intent.putExtra("Project", (Parcelable) project);
                 mContext.startActivity(intent);
             }
         });

@@ -23,11 +23,11 @@ public class SavedProjects implements Serializable, Parcelable {
         projects = new ArrayList<>();
     }
 
-    public void saveProjects(Context ctx)
+    public void saveProjects(Context ctx, String filename)
     {
         try
         {
-            FileOutputStream fileOutputStream = ctx.openFileOutput("savedProjects.ser", Context.MODE_PRIVATE);
+            FileOutputStream fileOutputStream = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this);
             objectOutputStream.close();
@@ -37,13 +37,13 @@ public class SavedProjects implements Serializable, Parcelable {
         }
     }
 
-    public SavedProjects readProjects(Context ctx)
+    public static SavedProjects readProjects(Context ctx, String filename)
     {
         SavedProjects savedProjects = null;
 
         try
         {
-            FileInputStream fileInputStream = ctx.openFileInput("savedProjects.ser");
+            FileInputStream fileInputStream = ctx.openFileInput(filename);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             savedProjects = (SavedProjects) objectInputStream.readObject();
             objectInputStream.close();

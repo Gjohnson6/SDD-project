@@ -12,10 +12,14 @@ public class Project implements Serializable, Parcelable{
     private String projectName;
     private int partnerCount = 0;
     private String filepath;
+    private String ip;
+    private String id;
 
     public Project(String projectName,String filepath){
         this.projectName = projectName;
         this.filepath = filepath;
+        this.ip = "";
+        this.id = "";
     }
 
     public String getProjectName() {
@@ -46,6 +50,8 @@ public class Project implements Serializable, Parcelable{
         dest.writeString(projectName);
         dest.writeInt(partnerCount);
         dest.writeString(filepath);
+        dest.writeString(ip);
+        dest.writeString(id);
     }
 
     public static final Parcelable.Creator<Project> CREATOR = new Parcelable.Creator<Project>() {
@@ -60,9 +66,35 @@ public class Project implements Serializable, Parcelable{
 
     private Project(Parcel in)
     {
-        String test = in.readString();
-        projectName = in.readString();
+        String test = Project.class.getCanonicalName();
+        String temp = in.readString();
+        if(test.equals(temp))
+        {
+            projectName = in.readString();
+        }
+        else
+        {
+            projectName = temp;
+        }
         partnerCount = in.readInt();
         filepath = in.readString();
+        ip = in.readString();
+        id = in.readString();
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
