@@ -9,5 +9,6 @@
     <string name="title_activity_project_menu">ProjectMenu</string>
     <string name="title_activity_new_project">NewProjectActivity</string>
     <string name="title_activity_new_project_browser">NewProjectBrowser</string>
+    <string name="title_activity_partner_browser">PartnerBrowser</string>
 
 </resources>

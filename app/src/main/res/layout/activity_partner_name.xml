@@ -16,7 +16,8 @@
         android:stackFromBottom="true"
         android:choiceMode="none"
         android:footerDividersEnabled="false"
-        android:headerDividersEnabled="false" />
+        android:headerDividersEnabled="false"
+        android:clickable="true" />
 
     <Button
         android:layout_width="match_parent"

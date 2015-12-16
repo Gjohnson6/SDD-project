@@ -12,19 +12,29 @@ import java.io.File;
 import java.util.ArrayList;
 
 /**
- * Created by Grant on 11/30/2015.
+ * Created by Grant on 12/16/2015.
  */
-public class CustomFileAdapter extends ArrayAdapter<String>{
+public class FileStructureAdapter extends ArrayAdapter<String>{
     Context mContext;
+    FileStructure fileStructure;
 
-    public CustomFileAdapter(Context context, ArrayList<String> files){
+    public FileStructureAdapter(Context context, ArrayList<String> files, FileStructure fs){
         super(context, 0, files);
         this.mContext = context;
+        this.fileStructure = fs;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
-        final File file = new File(getItem(position));
+       // final File file = new File(getItem(position));
+        FileStructure fileStructure1 = null;
+        for(FileStructure file : fileStructure.getFiles())
+        {
+            if(file.getName() == getItem(position))
+            {
+                fileStructure1 = file;
+            }
+        }
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.activity_custom_file_listview, parent, false);
@@ -32,12 +42,10 @@ public class CustomFileAdapter extends ArrayAdapter<String>{
 
         TextView projectName = (TextView) convertView.findViewById(R.id.fileNameTextView);
         TextView fileSize = (TextView) convertView.findViewById(R.id.fileSizeTextView);
-        fileSize.setText(android.text.format.Formatter.formatShortFileSize(mContext, file.length()));
         ImageView imageView = (ImageView) convertView.findViewById(R.id.fileTypeImageView);
-        if(!file.isDirectory())
+        if(fileStructure1.isFile())
         {
             imageView.setImageResource(R.drawable.ic_description);
-            fileSize.setText(android.text.format.Formatter.formatShortFileSize(mContext, file.length()));
         }
         else
         {
@@ -45,7 +53,7 @@ public class CustomFileAdapter extends ArrayAdapter<String>{
             fileSize.setText("");
         }
 
-        projectName.setText(file.getName());
+        projectName.setText(fileStructure1.getName());
 
         return convertView;
     }

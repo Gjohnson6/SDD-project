@@ -11,6 +11,8 @@
     android:clickable="true">
 
     <TextView
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -28,6 +30,8 @@
         android:layout_gravity="center_horizontal">
 
         <TextView
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -41,6 +45,8 @@
             android:textColor="@android:color/darker_gray" />
 
         <TextView
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"

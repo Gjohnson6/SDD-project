@@ -1,6 +1,11 @@
 package edu.carthage.johnson.grant.aerophile;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.wifi.WifiInfo;
@@ -24,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Locale;
+import java.util.UUID;
 
 public class QRGenerated extends ActionBarActivity {
     Project project;
@@ -79,75 +85,46 @@ public class QRGenerated extends ActionBarActivity {
         {
             try
             {
-                ServerSocket hostSocket = new ServerSocket(0);//Socket to accept message from the partner
-                String ip = "";
-                try {
-                    WifiManager wifiManager = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
-                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                while(true) {
+                    System.out.println("Beginning of while");
 
-                    int ipAddress = wifiInfo.getIpAddress();
-                    String ip2 = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
-                    ip = String.format(Locale.getDefault(), "%d.%d.%d.%d",
-                            (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
-                            (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-                } catch (Exception ex) {
-                    //Log.e(TAG, ex.getMessage());
-                    ex.printStackTrace();
+                    //Bluetooth
+                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    //Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                    //discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+                    //startActivity(discoverableIntent);
+                    UUID uuid = UUID.fromString("29ae6c19-ab42-477a-9236-49750c158494");
+                    BluetoothServerSocket bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Aerophile", uuid);
+
+
+                    BluetoothSocket partnerSocket = bluetoothServerSocket.accept();
+
+                    while(partnerSocket.isConnected()) {
+                        ObjectInputStream inFromPartner = new ObjectInputStream(partnerSocket.getInputStream());
+                        MessageToHost messageToHost = (MessageToHost) inFromPartner.readObject();
+
+                        System.out.println(messageToHost.getPartnerIP());
+                        BluetoothDevice partnerDevice = bluetoothAdapter.getRemoteDevice(messageToHost.getPartnerIP());
+
+                        BluetoothSocket socketToPartner = partnerDevice.createInsecureRfcommSocketToServiceRecord(uuid);
+
+
+                        socketToPartner.connect();
+                        ObjectOutputStream outToPartner = new ObjectOutputStream(socketToPartner.getOutputStream());
+
+                        if (messageToHost.isToConnect()) {
+                            PartnerProject partnerProject = new PartnerProject(project.getProjectName(), project.getFilepath());
+                            partnerProject.setId(project.getId());
+                            partnerProject.setAddress(bluetoothAdapter.getAddress());
+                            outToPartner.writeObject(partnerProject);
+                        } else {
+                            File fileToSend = new File(messageToHost.getFilename());
+                            outToPartner.writeObject(fileToSend);
+                        }
+
+                        System.out.println(project.getProjectName());
+                    }
                 }
-                System.out.println("Blocked");
-                System.out.println(ip);
-                Socket mySocket = hostSocket.accept();//Blocking call
-                Toast toast = Toast.makeText(ctx, "Connected", Toast.LENGTH_LONG);
-                toast.show();
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                System.out.println("Connected");
-                ObjectInputStream objIS = new ObjectInputStream(mySocket.getInputStream());
-                MessageToHost messageFromPartner = (MessageToHost) objIS.readObject();
-
-                hostSocket.close();
-                //Now we have the message from the partner, we should be able to send them a filestructure. Hopefully.
-                if(messageFromPartner.isToConnect())//If the partner wants to connect (ie, be sent the file structure)
-                {
-                    Socket toPartner = new Socket(messageFromPartner.getPartnerIP(), 55555);
-
-                    FileStructure fileStructure = new FileStructure(new File(project.getFilepath()));
-                    ObjectOutputStream objOS = new ObjectOutputStream(toPartner.getOutputStream());
-                    objOS.writeObject(fileStructure);
-
-                }
-
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {

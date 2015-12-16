@@ -19,8 +19,6 @@ public class FileBrowser {
 
         ArrayList files = new ArrayList();
         File directory = new File(path);
-        directory.setReadable(true);
-        boolean readable = directory.canRead();
         String[] list = directory.list();
         if(list != null)
         {
@@ -34,6 +32,19 @@ public class FileBrowser {
         }
         Collections.sort(files);
         ArrayAdapter adapter = new CustomFileAdapter(ctx, files);
+        listView.setAdapter(adapter);
+    }
+
+    public void PopulateList(Context ctx, FileStructure fileStructure, ListView listView)
+    {
+        ArrayList<String> fileNames = new ArrayList<>();
+
+        for(FileStructure file : fileStructure.getFiles())
+        {
+            fileNames.add(file.getName());
+        }
+
+        ArrayAdapter adapter = new FileStructureAdapter(ctx, fileNames, fileStructure);
         listView.setAdapter(adapter);
     }
 }

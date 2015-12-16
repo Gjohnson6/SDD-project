@@ -1,5 +1,7 @@
 package edu.carthage.johnson.grant.aerophile;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -165,7 +167,7 @@ public class ProjectHost extends ActionBarActivity{
             }
 
             int port = 55555;
-
+            ip = BluetoothAdapter.getDefaultAdapter().getAddress();
             QRInfo qrInfo = new QRInfo(projectID, ip, port);
 
             String qrInputText = "";
