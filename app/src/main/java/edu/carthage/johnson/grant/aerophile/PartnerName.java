@@ -1,5 +1,7 @@
 package edu.carthage.johnson.grant.aerophile;
 
+import android.bluetooth.BluetoothA2dp;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
@@ -8,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
+import android.text.format.Formatter;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -16,6 +19,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,6 +37,7 @@ public class PartnerName extends ActionBarActivity {
     private Socket socket;
     private String ip;
     private int port;
+    private QRInfo qrInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,24 +105,21 @@ public class PartnerName extends ActionBarActivity {
             System.out.println(contents);
             System.out.println(contents);
             System.out.println(contents);
-            QRInfo qrInfo = new QRInfo("", "", 1);
+            qrInfo = new QRInfo("", "", 1);
             if(qrInfo != null) {
                 try {
                     String[] info = contents.split("¥");
-                    qrInfo = new QRInfo(info[2], info[0], Integer.parseInt(info[1]));
+                    System.out.println(info[1]);
+
+                    qrInfo = new QRInfo(info[2], info[0], (int)Integer.parseInt(info[1]));
+
                     ip = qrInfo.getIp();
-                    Toast toast = Toast.makeText(ctx, ip, Toast.LENGTH_SHORT);
-                    toast.show();
                     port = qrInfo.getPort();
-                    System.out.println(ip + ":" + port);
-                    Toast toast2 = Toast.makeText(ctx, port, Toast.LENGTH_LONG);
-                    toast2.show();
-                    Socket toHost = new Socket(ip, port);
-                    ObjectOutputStream outToHost = new ObjectOutputStream(toHost.getOutputStream());
-                    MessageToHost messageToHost = new MessageToHost(true, qrInfo.getProjectID(), getIP());//Tell the host we want to connect and what we want to connect to
-                    outToHost.writeObject(messageToHost);//Send the message to the host
+
+
                     PartnerProxy partnerProxy = new PartnerProxy();
-                    partnerProxy.doInBackground(null, null);
+                    System.out.println("Executing");
+                    partnerProxy.execute();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -131,35 +133,51 @@ public class PartnerName extends ActionBarActivity {
         }
     }
 
-    private class PartnerProxy extends AsyncTask<Void, Void, FileStructure>{
+    private class PartnerProxy extends AsyncTask<QRInfo, Void, FileStructure>{
 
         @Override
-        protected FileStructure doInBackground(Void... params)
+        protected FileStructure doInBackground(QRInfo... params)
         {
             FileStructure fileStruct = null;
+            System.out.println("In partnerproxy");
             try
             {
-                socket = new Socket(ip, port);
+
+                System.out.println("IP: " + qrInfo.getIp());
+                System.out.println("Port: " + qrInfo.getPort());
+
+                
+                Socket toHost = new Socket("10.200.122.255", qrInfo.getPort());
+                System.out.println("Past socket");
+                ObjectOutputStream outToHost = new ObjectOutputStream(toHost.getOutputStream());
+                System.out.println("Past outToHost");
+                MessageToHost messageToHost = new MessageToHost(true, qrInfo.getProjectID(), getIP());//Tell the host we want to connect and what we want to connect to
+
+                System.out.println("Past message");
+                outToHost.writeObject(messageToHost);//Send the message to the host
+                System.out.println("Sent");
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            try
-            {
-                ServerSocket partnerSocket = new ServerSocket(12345);//Socket to accept FileStructures from the host
-                Socket mySocket = partnerSocket.accept();
-                ObjectInputStream objIS = new ObjectInputStream(mySocket.getInputStream());
-                fileStruct = (FileStructure) objIS.readObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+//            try
+  //          {
+    //            ServerSocket partnerSocket = new ServerSocket(12345);//Socket to accept FileStructures from the host
+      //          Socket mySocket = partnerSocket.accept();
+        //        ObjectInputStream objIS = new ObjectInputStream(mySocket.getInputStream());
+          //      fileStruct = (FileStructure) objIS.readObject();
+///            } catch (IOException e) {
+   //             e.printStackTrace();
+     //       } catch (ClassNotFoundException e) {
+        //        e.printStackTrace();
+       //     }
             return fileStruct;
         }
     }
+
+
 
     protected void onPostExecute(FileStructure fileStructure)
     {

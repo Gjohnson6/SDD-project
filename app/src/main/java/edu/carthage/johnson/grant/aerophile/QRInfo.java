@@ -22,6 +22,8 @@ public class QRInfo implements Serializable{
         this.projectID = projectID;
         this.ip = ip;
         this.port = port;
+        System.out.println(Integer.toString(port));
+        System.out.println(Integer.toString(this.port));
     }
 
     public byte[] getBytes() throws IOException

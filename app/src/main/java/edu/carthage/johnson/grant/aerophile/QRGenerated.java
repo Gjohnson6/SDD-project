@@ -1,13 +1,18 @@
 package edu.carthage.johnson.grant.aerophile;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.format.Formatter;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -18,9 +23,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Locale;
 
 public class QRGenerated extends ActionBarActivity {
     Project project;
+    private Context ctx = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,12 +79,62 @@ public class QRGenerated extends ActionBarActivity {
         {
             try
             {
-                ServerSocket hostSocket = new ServerSocket(55555);//Socket to accept message from the partner
+                ServerSocket hostSocket = new ServerSocket(0);//Socket to accept message from the partner
+                String ip = "";
+                try {
+                    WifiManager wifiManager = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
+                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+
+                    int ipAddress = wifiInfo.getIpAddress();
+                    String ip2 = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+                    ip = String.format(Locale.getDefault(), "%d.%d.%d.%d",
+                            (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+                            (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
+                } catch (Exception ex) {
+                    //Log.e(TAG, ex.getMessage());
+                    ex.printStackTrace();
+                }
+                System.out.println("Blocked");
+                System.out.println(ip);
                 Socket mySocket = hostSocket.accept();//Blocking call
+                Toast toast = Toast.makeText(ctx, "Connected", Toast.LENGTH_LONG);
+                toast.show();
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
+                System.out.println("Connected");
                 ObjectInputStream objIS = new ObjectInputStream(mySocket.getInputStream());
                 MessageToHost messageFromPartner = (MessageToHost) objIS.readObject();
 
-
+                hostSocket.close();
                 //Now we have the message from the partner, we should be able to send them a filestructure. Hopefully.
                 if(messageFromPartner.isToConnect())//If the partner wants to connect (ie, be sent the file structure)
                 {
