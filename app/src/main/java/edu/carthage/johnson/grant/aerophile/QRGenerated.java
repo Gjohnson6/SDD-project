@@ -8,10 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
 import android.view.Display;
@@ -24,10 +26,13 @@ import com.google.zxing.WriterException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -113,13 +118,33 @@ public class QRGenerated extends ActionBarActivity {
                         ObjectOutputStream outToPartner = new ObjectOutputStream(socketToPartner.getOutputStream());
 
                         if (messageToHost.isToConnect()) {
+
                             PartnerProject partnerProject = new PartnerProject(project.getProjectName(), project.getFilepath());
                             partnerProject.setId(project.getId());
                             partnerProject.setAddress(bluetoothAdapter.getAddress());
                             outToPartner.writeObject(partnerProject);
                         } else {
-                            File fileToSend = new File(messageToHost.getFilename());
-                            outToPartner.writeObject(fileToSend);
+                            //This is the issue. IT's making a new file instead of reading the file at that path
+                            File dir = Environment.getExternalStorageDirectory();
+                            String fileString = messageToHost.getFilename().replace("/storage/emulated/0/", "");
+                            File fileToSend = new File(dir, fileString);
+                            
+                            RandomAccessFile f = new RandomAccessFile(fileToSend, "r");
+                            try
+                            {
+                                long longlength = f.length();
+                                int length = (int) longlength;
+
+                                byte[] data = new byte[length];
+                                f.readFully(data);
+
+                                FileToPartner fileToPartner = new FileToPartner(data, fileToSend);
+                                outToPartner.writeObject(fileToPartner);
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
 
                         System.out.println(project.getProjectName());

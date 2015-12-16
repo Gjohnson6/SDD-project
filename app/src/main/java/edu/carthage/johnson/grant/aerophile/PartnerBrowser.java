@@ -17,7 +17,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -122,18 +124,27 @@ public class PartnerBrowser extends ActionBarActivity {
 
                 BluetoothServerSocket bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Aerophile", uuid);
                 BluetoothSocket partnerSocket = bluetoothServerSocket.accept();
+
+                //ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(partnerSocket.getInputStream());
+
                 ObjectInputStream inFromPartner = new ObjectInputStream(partnerSocket.getInputStream());
-                File fileFromHost = (File) inFromPartner.readObject();
-                System.out.println("Got File: " + fileFromHost.getName());
+                FileToPartner fileFromHost = (FileToPartner) inFromPartner.readObject();
+                System.out.println("Got File: " + fileFromHost.getFile().getName());
                 //Check if external storage is available
 
                     try
                     {
+                        FileOutputStream fileOutputStream = new FileOutputStream(fileFromHost.getFile().getAbsolutePath());
+
+                        File fileToSave = new File(fileFromHost.getFile().getAbsolutePath());
+
+                        fileOutputStream.write(fileFromHost.getBytes());
+                        fileOutputStream.close();
+
+
                         System.out.println("Before Create New File");
-                        fileFromHost.getParentFile().mkdirs();
-                        fileFromHost.createNewFile();
-
-
+                        //fileFromHost.getFile().getParentFile().mkdirs();
+                        //fileFromHost.getFile().createNewFile();
                     } catch (Exception e)
                     {
                         e.printStackTrace();
